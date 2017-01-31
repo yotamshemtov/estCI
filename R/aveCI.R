@@ -45,13 +45,13 @@
 #' @param adjust Indicator whether to adjust the outcome with respect to the design matrix X.
 #' @param X the design matrix of pre-treatment variables that the outcome should be adjusted prior to estimating the CI. 
 
-#' @description The funciton calculates confidence intervals (CI) for the sample average treatment effect on the treated (SATT), the sample average treatment effect on the controls (SATC), and the average treatment effect (SATE).
-# The standard CI for the sample average treatment effect is based on Neyman's variance estimator,   
+#' @description The funciton calculates confidence/prediction intervals (CI and PI) for sample average treatment effects. It calculates a prediction intervals for the sample average treatment effect on the treated (SATT), the sample average treatment effect on the controls (SATC), and a confidence intervals for the average treatment effect (SATE).
+# The standard CI for the SATE is based on Neyman's variance estimator,   
 #' \deqn{ \text{Var}_{Neyman} = \left(  \frac{s}{d} \right) }
 #' 
 #' @export 
 
-aveCI = function(outcome,treatment,X=NULL,alpha=0.05, print=TRUE, Sharp.CI=TRUE, Bernulli = FALSE){
+aveCI = function(outcome,treatment,X=NULL,alpha=0.05, print=TRUE, Sharp.CI=TRUE){
   
   tr=as.numeric(treatment)
   y=outcome
@@ -83,7 +83,6 @@ aveCI = function(outcome,treatment,X=NULL,alpha=0.05, print=TRUE, Sharp.CI=TRUE,
   sd.neyman = sqrt(var1/m + var0/(n-m))
   ci.upper.neyman = difference.means + qnorm(1-alpha/2) * sd.neyman
   ci.lower.neyman = difference.means - qnorm(1-alpha/2) * sd.neyman
-  #cat("Neyman's CI:  [",ci.lower.neyman, ci.upper.neyman,"]","\n")
   
   # Confidence interval based on Neyman's variance estimator with pooled variance:
   sd.pool = sqrt(var.pool/m + var.pool/(n-m))
@@ -133,26 +132,6 @@ aveCI = function(outcome,treatment,X=NULL,alpha=0.05, print=TRUE, Sharp.CI=TRUE,
   
   length.gain.shortestCI = 1 - (ci.upper.shortestCI-ci.lower.shortestCI)/(ci.upper.neyman - ci.lower.neyman)
   
-  
-  if (Bernulli==TRUE){
-    mean0 = mean(y[tr==0])
-    mean1 = mean(y[tr==1])
-    
-    # Prediction interval for SATT
-    var.mean.controls.under.treatment = meanBernulli(sigma0 = sqrt(var0), mean0 = mean0, n=n, p = m/n)
-    var.difference.in.means = meanBernulli(sigma0 = sqrt(var1), mean0 = mean1, n=n, p = m/n) + meanBernulli(sigma0 = sqrt(var0), mean0 = mean0, n=n, p = 1-m/n)
-    
-    # Variance of the adjusted difference in means
-    sd.adj.control.bernulli = sqrt( n/(n-m) * var.mean.controls.under.treatment ) 
-    ci.upper.control.bernulli = difference.means + qnorm(1-alpha/2) * sd.adj.control.bernulli
-    ci.lower.control.bernulli = difference.means - qnorm(1-alpha/2) * sd.adj.control.bernulli
-    
-    # Variance of the difference in means under Bernulli assignment mechanism
-    sd.adj.diff.bernulli = sqrt(var.difference.in.means) 
-    ci.upper.diff.bernulli = difference.means + qnorm(1-alpha/2) * sd.adj.diff.bernulli
-    ci.lower.diff.bernulli = difference.means - qnorm(1-alpha/2) * sd.adj.diff.bernulli
-  }
-  
   ### results to return
   results = list(
     
@@ -186,20 +165,6 @@ aveCI = function(outcome,treatment,X=NULL,alpha=0.05, print=TRUE, Sharp.CI=TRUE,
                    length.gain.satt = length.gain.satt*100,
                    length.gain.satc = length.gain.satc*100)
   }
-  
-  if (Bernulli){
-    
-    results$Bernulli.SATT = list(ci.lower = ci.lower.control.bernulli,
-                         ci.upper = ci.upper.control.bernulli,
-                         length = ci.upper.control.bernulli - ci.lower.control.bernulli)
-    
-    results$Bernulli.diff.in.means = list(ci.lower = ci.lower.diff.bernulli,
-                                  ci.upper = ci.upper.diff.bernulli,
-                                  length = ci.upper.diff.bernulli - ci.lower.diff.bernulli)
-    
-    results$Bernulli.gain.SATT = 1 - (  ci.upper.control.bernulli - ci.lower.control.bernulli  )/( ci.upper.diff.bernulli - ci.lower.diff.bernulli )
-  }
-  
   
   # Print results
   if(print==TRUE){

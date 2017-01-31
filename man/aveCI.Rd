@@ -22,7 +22,7 @@ aveCI(outcome, treatment, X = NULL, alpha = 0.05, print = TRUE,
 The function returns XXX
 }
 \description{
-The funciton calculates confidence intervals (CI) for the sample average treatment effect on the treated (SATT), the sample average treatment effect on the controls (SATC), and the average treatment effect (SATE).
+The funciton calculates confidence/prediction intervals (CI and PI) for sample average treatment effects. It calculates a prediction intervals for the sample average treatment effect on the treated (SATT), the sample average treatment effect on the controls (SATC), and a confidence intervals for the average treatment effect (SATE).
 \deqn{ \text{Var}_{Neyman} = \left(  \frac{s}{d} \right) }
 }
 \examples{
