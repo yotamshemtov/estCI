@@ -5,6 +5,6 @@ Version: 1.0
 Date: 2017-02-02
 Author: Yotam Shem-Tov
 Maintainer: Yotam Shem-Tov <yotam.she@gmail.comt>
-Description: Estimating  Confidence Intervals for Sample Average Treatment Effects. The package provides more efficient estimates for sample average treatment effects than the traditional Neyman variance estimator.
+Description: Estimating Confidence/Prediction Intervals for Sample Average Treatment Effects. The package provides efficient estimates for the sample average treatment effect on the treated or controls. 
 License: MIT
 RoxygenNote: 5.0.1
