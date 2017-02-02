@@ -2,8 +2,8 @@ Package: estCI
 Type: Package
 Title: Estimating  Confidence Intervals for Sample Average Treatment Effects
 Version: 1.0
-Date: 2016-06-08
-Author: Jasjeet S. Sekhon and Yotam Shem-Tov
+Date: 2017-02-02
+Author: Yotam Shem-Tov
 Maintainer: Yotam Shem-Tov <yotam.she@gmail.comt>
 Description: Estimating  Confidence Intervals for Sample Average Treatment Effects. The package provides more efficient estimates for sample average treatment effects than the traditional Neyman variance estimator.
 License: MIT

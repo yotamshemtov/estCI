@@ -1,5 +1,5 @@
 #' Confidence intervals for SATT and SATC
-#' @return The function returns XXX 
+#' @return The function returns TO-ADD help manual description 
 # \itemize{
 #    \item cohort
 #    \item min.cohort
@@ -42,42 +42,58 @@
 #' @param outcome  Outcome of interest \cr \cr
 #' @param treatment  Treatmnet indicator that can take only two levels 0 or 1. \cr \cr
 #' @param alpha The Type-I error rate (size) of the confidence interval.
-#' @param adjust Indicator whether to adjust the outcome with respect to the design matrix X.
-#' @param X the design matrix of pre-treatment variables that the outcome should be adjusted prior to estimating the CI. 
 
 #' @description The funciton calculates confidence/prediction intervals (CI and PI) for sample average treatment effects. It calculates a prediction intervals for the sample average treatment effect on the treated (SATT), the sample average treatment effect on the controls (SATC), and a confidence intervals for the average treatment effect (SATE).
-# The standard CI for the SATE is based on Neyman's variance estimator,   
-#' \deqn{ \text{Var}_{Neyman} = \left(  \frac{s}{d} \right) }
 #' 
 #' @export 
 
-aveCI = function(outcome,treatment,X=NULL,alpha=0.05, print=TRUE, Sharp.CI=TRUE){
+aveCI = function(outcome=NULL,treatment=NULL,alpha=0.05, print=TRUE, Sharp.CI=TRUE, variance.test=TRUE, stats.only=FALSE,
+                 var1=NULL, var0=NULL, mu1=NULL, mu0=NULL, n=NULL, m=NULL, var.pool=NULL){
   
-  tr=as.numeric(treatment)
-  y=outcome
-  n = length(y)
-  m = sum(tr)
-  
-  if(length(unique(tr))!=2){
-    stop("Treatment variable has more than 2 levels - only two levels of treatment are allowed")
+  if(stats.only==TRUE){
+    
+    tmp = is.null(var1) | is.null(var0) |  is.null(mu0) | is.null(mu1) | is.null(m) |  is.null(n) | is.null(var.pool)
+    if(tmp){
+      stop("Error: One of the following moments is missing: var1, var0, mu1, mu0, n, or m.
+           It is necesary to supply all the above moments when the stats.only option is equal TRUE")
+    }
+    
+    variance.test=FALSE
+    p = m/n
+    k.n.m = 1/(p*(1-p)*n)
+    
   }
   
-  if(is.numeric(y)==FALSE){
-    stop("Only numeric outcomes are allowed")
+  if(stats.only==FALSE){
+    tr=as.numeric(treatment)
+    y=outcome
+    
+    # General parameters and expressions
+    n = length(y)
+    m = sum(tr)
+    p = m/n
+    k.n.m = 1/(p*(1-p)*n)
+    
+    if(length(unique(tr))!=2){
+      stop("Treatment variable has more than 2 levels - only two levels of treatment are allowed")
+    }
+    
+    if(is.numeric(y)==FALSE){
+      stop("Only numeric outcomes are allowed")
+    }
+    
+    # Variance in control and treatment:
+    var1 = var(y[tr==1],na.rm=TRUE)
+    var0 = var(y[tr==0],na.rm=TRUE)
+    var.pool = var(y,na.rm=TRUE)
+    
+    # Means in treatment and control
+    mu1 = mean(y[tr==1],na.rm=TRUE)
+    mu0 = mean(y[tr==0],na.rm=TRUE)
   }
-  
-  # pre-treatment covariate adjustment
-  #if (adjust==TRUE){
-  # y = lm(y~(.),data=as.data.frame(X))$res
-  #}
   
   # The difference in means
-  difference.means = mean(y[tr==1],na.rm=TRUE) - mean(y[tr==0],na.rm=TRUE)
-  
-  # Variance in control and treatment:
-  var1 = var(y[tr==1],na.rm=TRUE)
-  var0 = var(y[tr==0],na.rm=TRUE)
-  var.pool = var(y,na.rm=TRUE)
+  difference.means =  mu1 - mu0
   
   # Confidence interval based on Neyman's variance estimator:
   sd.neyman = sqrt(var1/m + var0/(n-m))
@@ -89,14 +105,13 @@ aveCI = function(outcome,treatment,X=NULL,alpha=0.05, print=TRUE, Sharp.CI=TRUE)
   ci.upper.pool = difference.means + qnorm(1-alpha/2) * sd.pool
   ci.lower.pool = difference.means - qnorm(1-alpha/2) * sd.pool
   
-  # Confidence interval using control units only:
-  k.n.m = ( n/(n-m) )^2 * ( (n-m)/( (n-1)*m ) )
+  ### Prediction interval for SATT
   sd.adj.control = sqrt( k.n.m * var0 ) 
   ci.upper.control = difference.means + qnorm(1-alpha/2) * sd.adj.control
   ci.lower.control = difference.means - qnorm(1-alpha/2) * sd.adj.control
   #cat("Our CI:  [",ci.low, ci.upper,"]","\n")
   
-  # Confidence interval using treated units only:
+  ### Prediction interval for SATC
   sd.adj.treated = sqrt( k.n.m * var1 ) 
   ci.upper.treated = difference.means + qnorm(1-alpha/2) * sd.adj.treated
   ci.lower.treated = difference.means - qnorm(1-alpha/2) * sd.adj.treated
@@ -105,7 +120,6 @@ aveCI = function(outcome,treatment,X=NULL,alpha=0.05, print=TRUE, Sharp.CI=TRUE)
   sd.corr1 = sqrt(  var1/m + var0/(n-m) - ( sqrt(var1) - sqrt(var0) )^2/n  )
   ci.upper.corr1 = difference.means + qnorm(1-alpha/2) * sd.corr1
   ci.lower.corr1 = difference.means - qnorm(1-alpha/2) * sd.corr1
-  
   
   ### Shortest CI:
   length.satc = ci.upper.treated-ci.lower.treated
@@ -182,17 +196,20 @@ aveCI = function(outcome,treatment,X=NULL,alpha=0.05, print=TRUE, Sharp.CI=TRUE)
       "\n",
       "The Shortest CI is smaller than Neyman's CI by:  ",round(length.gain.shortestCI,dig=2)*100,"%",
       "\n \n",
-      " Variance of control units: ",round(var(y[tr==0],na.rm=TRUE),dig=2),
+      " Variance of control units: ",round(var0,dig=2),
       "\n",
-      " Variance of treated units: ",round(var(y[tr==1],na.rm=TRUE),dig=2),
+      " Variance of treated units: ",round(var1,dig=2),
       "\n",
-      " F Test to Compare Two Variances:  P-value = ",var.test(y[tr==1],y[tr==0])$p.value,
       "\n \n \n",
       "Additional confidence intervals: \n \n",
       " SATE (Corr=1 CI) - ", (1-alpha)*100," percent confidence interval: \n", 
       "      [",ci.lower.corr1,", ",ci.upper.corr1,"]", 
       "\n",
         sep="")
+    
+    if(variance.test){
+      cat( "\n", " F Test to Compare Two Variances:  P-value = ",var.test(y[tr==1],y[tr==0])$p.value,"\n" )  
+    }
     
     if (Sharp.CI==TRUE){
       cat(

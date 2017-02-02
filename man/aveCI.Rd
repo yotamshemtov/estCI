@@ -4,26 +4,23 @@
 \alias{aveCI}
 \title{Confidence intervals for SATT and SATC}
 \usage{
-aveCI(outcome, treatment, X = NULL, alpha = 0.05, print = TRUE,
-  Sharp.CI = TRUE, Bernulli = FALSE)
+aveCI(outcome = NULL, treatment = NULL, alpha = 0.05, print = TRUE,
+  Sharp.CI = TRUE, variance.test = TRUE, stats.only = FALSE,
+  var1 = NULL, var0 = NULL, mu1 = NULL, mu0 = NULL, n = NULL,
+  m = NULL, var.pool = NULL)
 }
 \arguments{
 \item{outcome}{Outcome of interest \cr \cr}
 
 \item{treatment}{Treatmnet indicator that can take only two levels 0 or 1. \cr \cr}
 
-\item{X}{the design matrix of pre-treatment variables that the outcome should be adjusted prior to estimating the CI.}
-
 \item{alpha}{The Type-I error rate (size) of the confidence interval.}
-
-\item{adjust}{Indicator whether to adjust the outcome with respect to the design matrix X.}
 }
 \value{
-The function returns XXX
+The function returns TO-ADD help manual description
 }
 \description{
 The funciton calculates confidence/prediction intervals (CI and PI) for sample average treatment effects. It calculates a prediction intervals for the sample average treatment effect on the treated (SATT), the sample average treatment effect on the controls (SATC), and a confidence intervals for the average treatment effect (SATE).
-\deqn{ \text{Var}_{Neyman} = \left(  \frac{s}{d} \right) }
 }
 \examples{
 
