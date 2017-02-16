@@ -48,7 +48,7 @@
 #' @export 
 
 aveCI = function(outcome=NULL,treatment=NULL,alpha=0.05, print=TRUE, Sharp.CI=TRUE, variance.test=TRUE, stats.only=FALSE,
-                 var1=NULL, var0=NULL, mu1=NULL, mu0=NULL, n=NULL, m=NULL, var.pool=NULL){
+                 var1=NULL, var0=NULL, mu1=NULL, mu0=NULL, n=NULL, m=NULL, var.pool=NULL, rho = NULL){
   
   if(stats.only==TRUE){
     
@@ -121,6 +121,13 @@ aveCI = function(outcome=NULL,treatment=NULL,alpha=0.05, print=TRUE, Sharp.CI=TR
   ci.upper.corr1 = difference.means + qnorm(1-alpha/2) * sd.corr1
   ci.lower.corr1 = difference.means - qnorm(1-alpha/2) * sd.corr1
   
+  # CI for SATE given rho
+  if(!is.null(rho)){
+    sd.rho = sqrt( k.n.m * ( p^2*var0 + (1-p)^2*var1 + 2*p*(1-p)*rho*sqrt(var0)*sqrt(var1) ) ) 
+    ci.upper.rho = difference.means + qnorm(1-alpha/2) * sd.rho
+    ci.lower.rho = difference.means - qnorm(1-alpha/2) * sd.rho
+  }
+  
   ### Shortest CI:
   length.satc = ci.upper.treated-ci.lower.treated
   length.satt = ci.upper.control-ci.lower.control
@@ -178,6 +185,11 @@ aveCI = function(outcome=NULL,treatment=NULL,alpha=0.05, print=TRUE, Sharp.CI=TR
                    ci.upper.sharp = ci.upper.sharp,
                    length.gain.satt = length.gain.satt*100,
                    length.gain.satc = length.gain.satc*100)
+  }
+  
+  if(!is.null(rho)){
+    results$sate.rho = list(ci.upper.sate.rho = ci.upper.rho,
+                                     ci.lower.sate.rho = ci.lower.rho)
   }
   
   # Print results
