@@ -173,7 +173,7 @@ aveCI = function(outcome=NULL,treatment=NULL,alpha=0.05, print=TRUE, Sharp.CI=TR
     
     satcCI = list(ci.lower.satc = ci.lower.treated,
                   ci.upper.satc = ci.upper.treated,
-                  tstat.satt = difference.means/sd.adj.treated
+                  tstat.satc = difference.means/sd.adj.treated
                   ),
     
     shortestCI = list(ci.lower = ci.lower.shortestCI,
