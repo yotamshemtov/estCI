@@ -7,7 +7,7 @@
 aveCI(outcome = NULL, treatment = NULL, alpha = 0.05, print = TRUE,
   Sharp.CI = TRUE, variance.test = TRUE, stats.only = FALSE,
   var1 = NULL, var0 = NULL, mu1 = NULL, mu0 = NULL, n = NULL,
-  m = NULL, var.pool = NULL)
+  m = NULL, var.pool = NULL, rho = NULL)
 }
 \arguments{
 \item{outcome}{Outcome of interest \cr \cr}
@@ -26,6 +26,7 @@ The funciton calculates confidence/prediction intervals (CI and PI) for sample a
 
 ### Example 1:
 # Estimate the average treatment effect on the treated
+n=1000
 y0 = rnorm(n,mean=10,sd=1)
 y1 = rnorm(n,mean=13,sd=3)
 tau = y1-y0

@@ -12,6 +12,7 @@
 #' 
 #' ### Example 1:
 #' # Estimate the average treatment effect on the treated
+#' n=1000
 #' y0 = rnorm(n,mean=10,sd=1)
 #' y1 = rnorm(n,mean=13,sd=3)
 #' tau = y1-y0
@@ -52,7 +53,7 @@ aveCI = function(outcome=NULL,treatment=NULL,alpha=0.05, print=TRUE, Sharp.CI=TR
   
   if(stats.only==TRUE){
     
-    tmp = is.null(var1) | is.null(var0) |  is.null(mu0) | is.null(mu1) | is.null(m) |  is.null(n) | is.null(var.pool)
+    tmp = is.null(var1) | is.null(var0) |  is.null(mu0) | is.null(mu1) | is.null(m) |  is.null(n)
     if(tmp){
       stop("Error: One of the following moments is missing: var1, var0, mu1, mu0, n, or m.
            It is necesary to supply all the above moments when the stats.only option is equal TRUE")
@@ -85,7 +86,7 @@ aveCI = function(outcome=NULL,treatment=NULL,alpha=0.05, print=TRUE, Sharp.CI=TR
     # Variance in control and treatment:
     var1 = var(y[tr==1],na.rm=TRUE)
     var0 = var(y[tr==0],na.rm=TRUE)
-    var.pool = var(y,na.rm=TRUE)
+    #var.pool = var(y,na.rm=TRUE)
     
     # Means in treatment and control
     mu1 = mean(y[tr==1],na.rm=TRUE)
@@ -101,9 +102,12 @@ aveCI = function(outcome=NULL,treatment=NULL,alpha=0.05, print=TRUE, Sharp.CI=TR
   ci.lower.neyman = difference.means - qnorm(1-alpha/2) * sd.neyman
   
   # Confidence interval based on Neyman's variance estimator with pooled variance:
-  sd.pool = sqrt(var.pool/m + var.pool/(n-m))
-  ci.upper.pool = difference.means + qnorm(1-alpha/2) * sd.pool
-  ci.lower.pool = difference.means - qnorm(1-alpha/2) * sd.pool
+  if( !is.null(var.pool) ){
+    sd.pool = sqrt(var.pool/m + var.pool/(n-m))
+    ci.upper.pool = difference.means + qnorm(1-alpha/2) * sd.pool
+    ci.lower.pool = difference.means - qnorm(1-alpha/2) * sd.pool
+  }
+
   
   ### Prediction interval for SATT
   sd.adj.control = sqrt( k.n.m * var0 ) 
@@ -138,6 +142,7 @@ aveCI = function(outcome=NULL,treatment=NULL,alpha=0.05, print=TRUE, Sharp.CI=TR
   parameter.vec = c("SATE","SATC","SATT")
   
   length.shortestCI = length.vec[which.min(length.vec)]
+  sd.shortestCI = c(sd.neyman,sd.adj.treated, sd.adj.control)[which.min(length.vec)]
   parameter.shortestCI = parameter.vec[which.min(length.vec)]
   
   if (parameter.shortestCI=="SATE"){
@@ -157,17 +162,23 @@ aveCI = function(outcome=NULL,treatment=NULL,alpha=0.05, print=TRUE, Sharp.CI=TR
   results = list(
     
     neymanCI = list(ci.lower.neyman = ci.lower.neyman,
-                    ci.upper.neyman = ci.upper.neyman
+                    ci.upper.neyman = ci.upper.neyman,
+                    tstat.neyman = difference.means/sd.neyman
                     ),
     
     sattCI = list(ci.lower.satt = ci.lower.control,
-                  ci.upper.satt = ci.upper.control),
+                  ci.upper.satt = ci.upper.control,
+                  tstat.satt = difference.means/sd.adj.control
+                  ),
     
     satcCI = list(ci.lower.satc = ci.lower.treated,
-                  ci.upper.satc = ci.upper.treated),
+                  ci.upper.satc = ci.upper.treated,
+                  tstat.satt = difference.means/sd.adj.treated
+                  ),
     
     shortestCI = list(ci.lower = ci.lower.shortestCI,
                       ci.upper = ci.upper.shortestCI,
+                      tstat.shortest = difference.means/sd.shortestCI,
                       parameter = parameter.shortestCI,
                       length.gain.shortestCI = length.gain.shortestCI)
     )
