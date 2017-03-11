@@ -194,6 +194,7 @@ aveCI = function(outcome=NULL,treatment=NULL,alpha=0.05, print=TRUE, Sharp.CI=TR
     
     results$sharpCI = list(ci.lower.sharp = ci.lower.sharp,
                    ci.upper.sharp = ci.upper.sharp,
+                   tstat.sharp = difference.means/sd.sharp,
                    length.gain.satt = length.gain.satt*100,
                    length.gain.satc = length.gain.satc*100)
   }
