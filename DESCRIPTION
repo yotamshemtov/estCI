@@ -3,8 +3,8 @@ Type: Package
 Title: Estimating  Confidence Intervals for Sample Average Treatment Effects
 Version: 1.0
 Date: 2017-02-02
-Author: Jasjeet S. Sekhon and Yotam Shem-Tov
-Maintainer: Yotam Shem-Tov <yotam.she@gmail.com>
+Author: 
+Maintainer: 
 Description: Estimating Confidence/Prediction Intervals for Sample Average Treatment Effects. The package provides efficient estimators for the sample average treatment effect on the treated or controls. 
 License: MIT
 RoxygenNote: 5.0.1
